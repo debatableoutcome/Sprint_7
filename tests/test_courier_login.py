@@ -2,6 +2,7 @@ import time
 import pytest
 import allure
 
+from helpers.utils import get_json_or_text
 from helpers.couriers import login_courier
 from helpers.test_data import INVALID_LOGIN_NO_LOGIN, INVALID_LOGIN_NO_PASSWORD
 
@@ -30,11 +31,11 @@ class TestCourierLogin:
     )
     def test_login_lacks_required_data_returns_error(self, login_data):
         response = login_courier(
-            login_data.get('login'),
-            login_data.get('password'),
+            login_data['login'],
+            login_data['password'],
         )
 
-        body = response.json()
+        body = get_json_or_text(response)
         assert response.status_code == 400
         assert body.get('message') == 'Недостаточно данных для входа'
 
@@ -47,7 +48,7 @@ class TestCourierLogin:
 
         response = login_courier(login, password)
 
-        body = response.json()
+        body = get_json_or_text(response)
         assert response.status_code == 404
         assert body.get('message') == 'Учетная запись не найдена'
 
@@ -65,7 +66,7 @@ class TestCourierLogin:
 
         response = login_courier(login, password)
 
-        body = response.json()
+        body = get_json_or_text(response)
         assert response.status_code == 404
         assert body.get('message') == 'Учетная запись не найдена'
 
