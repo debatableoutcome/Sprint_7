@@ -1,6 +1,6 @@
 import allure
 
-from helpers.couriers import create_courier
+from helpers.couriers import create_courier, login_courier, delete_courier
 from helpers.test_data import INVALID_COURIER_NO_LOGIN, INVALID_COURIER_NO_PASSWORD
 
 
@@ -9,10 +9,18 @@ from helpers.test_data import INVALID_COURIER_NO_LOGIN, INVALID_COURIER_NO_PASSW
 class TestCreateCourier:
 
     @allure.title('Курьера можно создать')
-    def test_create_courier_success(self, created_courier):
-        response = create_courier(created_courier)
-        assert response.status_code == 201
-        assert response.json() == {'ok': True}
+    def test_create_courier_success(self, courier_payload):
+        response = create_courier(courier_payload)
+
+        try:
+            assert response.status_code == 201
+            assert response.json() == {'ok': True}
+        finally:
+            login_response = login_courier(courier_payload['login'], courier_payload['password'])
+            if login_response.status_code == 200:
+                courier_id = login_response.json().get('id')
+                if courier_id:
+                    delete_courier(courier_id)
 
     @allure.title('Нельзя создать двух одинаковых курьеров')
     def test_create_duplicate_courier_returns_error(self, cleanup_courier):

@@ -1,8 +1,9 @@
 import pytest
 
 from helpers.couriers import create_courier, login_courier, delete_courier
-from helpers.test_data import VALID_COURIER
+from helpers.test_data import VALID_COURIER, VALID_ORDER_NO_COLOR
 from helpers.utils import with_unique_login
+from helpers.orders import create_order, cancel_order
 
 
 @pytest.fixture
@@ -31,3 +32,14 @@ def cleanup_courier(courier_payload):
         courier_id = login_response.json().get('id')
         if courier_id:
             delete_courier(courier_id)
+
+
+@pytest.fixture
+def cleanup_order():
+    created_tracks = []
+
+    yield created_tracks
+
+    for track in created_tracks:
+        if track:
+            cancel_order(track)
