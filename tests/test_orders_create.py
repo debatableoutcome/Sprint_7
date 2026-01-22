@@ -1,8 +1,9 @@
 import pytest
 import allure
 
-from helpers.orders import create_order, cancel_order
-from helpers.test_data import (
+from helpers.orders import create_order
+from helpers.utils import get_json_or_text
+from helpers.data import (
     VALID_ORDER_BLACK,
     VALID_ORDER_GREY,
     VALID_ORDER_BOTH_COLORS,
@@ -24,17 +25,15 @@ class TestCreateOrder:
             VALID_ORDER_NO_COLOR,
         ]
     )
-    def test_create_order_returns_track(self, order_data):
-        track = None
+    def test_create_order_returns_track(self, order_data, cleanup_order):
+        response = create_order(order_data)
+        body = get_json_or_text(response)
 
-        try:
-            response = create_order(order_data)
-            body = response.json()
-            track = body['track']
+        assert response.status_code == 201
+        assert isinstance(body, dict)
 
-            assert response.status_code == 201
-            assert 'track' in body
+        track = body.get('track')
+        assert track is not None
+        assert isinstance(track, int)
 
-        finally:
-            if track:
-                cancel_order(track)
+        cleanup_order.append(track)

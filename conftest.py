@@ -1,9 +1,9 @@
 import pytest
 
 from helpers.couriers import create_courier, login_courier, delete_courier
-from helpers.test_data import VALID_COURIER, VALID_ORDER_NO_COLOR
+from helpers.data import VALID_COURIER
 from helpers.utils import with_unique_login
-from helpers.orders import create_order, cancel_order
+from helpers.orders import cancel_order
 
 
 @pytest.fixture
@@ -16,7 +16,7 @@ def created_courier(courier_payload):
     create_courier(courier_payload)
     yield courier_payload
 
-    login_response = login_courier(courier_payload['login'], courier_payload['password'])
+    login_response = login_courier(courier_payload.get('login'), courier_payload.get('password'))
     if login_response.status_code == 200:
         courier_id = login_response.json().get('id')
         if courier_id:
@@ -27,7 +27,7 @@ def created_courier(courier_payload):
 def cleanup_courier(courier_payload):
     yield courier_payload
 
-    login_response = login_courier(courier_payload['login'], courier_payload['password'])
+    login_response = login_courier(courier_payload.get('login'), courier_payload.get('password'))
     if login_response.status_code == 200:
         courier_id = login_response.json().get('id')
         if courier_id:
